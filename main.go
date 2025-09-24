@@ -40,9 +40,10 @@ func main() {
 			continue
 		}
 
-		// === Changed logging to match your old style ===
+		// === Restored 3-step logging from your mycode.go ===
 		logging.LogLine(fmt.Sprintf("[*] Decision: %v (confidence %.2f)", resp.Allow, resp.Conf))
 		logging.LogLine("[*] Reason: " + resp.Reason)
+		logging.LogLine("[*] Thoughts: " + resp.Thoughts)
 
 		if resp.Allow && resp.Conf >= 0.8 {
 			logging.LogLine("[+] Execution approved. Launching payload inline.")
