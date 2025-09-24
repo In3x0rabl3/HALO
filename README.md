@@ -25,25 +25,6 @@ HALO consists of four major subsystems:
 
 ---
 
-## Project Layout
-
-halo/
-├── ai/ # GPT request/response handling
-│ └── ai.go
-├── logging/ # File and console logging
-│ └── logging.go
-├── shellcode/ # Encrypted payload, key, and execution logic
-│ ├── loader_encrypted.bin
-│ ├── key.txt
-│ └── shellcode.go
-├── telemetry/ # Host telemetry collection and baseline
-│ └── telemetry.go
-├── utils/ # Shared utilities
-│ └── helpers.go
-├── enc.go # RC4 encryption utility
-├── main.go # Program entrypoint
-└── go.mod
-
 ---
 
 ## Requirements
