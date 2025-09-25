@@ -40,7 +40,6 @@ func main() {
 			continue
 		}
 
-		// === Restored 3-step logging from your mycode.go ===
 		logging.LogLine(fmt.Sprintf("[*] Decision: %v (confidence %.2f)", resp.Allow, resp.Conf))
 		logging.LogLine("[*] Reason: " + resp.Reason)
 		logging.LogLine("[*] Thoughts: " + resp.Thoughts)
