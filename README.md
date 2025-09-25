@@ -23,13 +23,9 @@ HALO consists of four major subsystems:
 4. **Shellcode Execution**  
    If AI conditions are met, the shellcode is decrypted, allocated in executable memory via `VirtualAlloc`, written in place, and executed in a new thread with `CreateThread`. The host blocks on execution using `WaitForSingleObject`.
 
----
-
 ## DEMO
 
-[![asciicast](https://asciinema.org/a/AOs8tjjRGjIpjovdGHLC4ZdTI.svg)](https://asciinema.org/a/AOs8tjjRGjIpjovdGHLC4ZdTI)
-
----
+![Demo](./demo.svg)
 
 ## Requirements
 
