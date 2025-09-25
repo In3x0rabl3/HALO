@@ -25,7 +25,7 @@ HALO consists of four major subsystems:
 
 ## DEMO
 
-<img src="./demo.svg" alt="Demo" width="1000" height="500"/>
+<img src="./demo.svg" alt="Demo" width="1000" height="800"/>
 
 ## Requirements
 
