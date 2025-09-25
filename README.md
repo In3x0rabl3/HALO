@@ -25,6 +25,10 @@ HALO consists of four major subsystems:
 
 ---
 
+## DEMO
+
+[![asciicast](https://asciinema.org/a/AOs8tjjRGjIpjovdGHLC4ZdTI.svg)](https://asciinema.org/a/AOs8tjjRGjIpjovdGHLC4ZdTI)
+
 ---
 
 ## Requirements
@@ -102,5 +106,5 @@ Example Output
 - Extend `telemetry.go` to collect additional host environment attributes as needed.  
 
 #### Payload Replacement
-- Generate a new `loader_encrypted.bin` and `key.txt` with `enc.go`, then rebuild the project.  
+- Generate a new `loader_encrypted.bin` and `key.txt` with `enc.go`, then rebuild the project. 
 
