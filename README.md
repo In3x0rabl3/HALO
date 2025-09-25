@@ -46,9 +46,7 @@ CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc GOOS=windows GOARCH=amd64 go build -o ha
 ```
 During build:
 
-loader_encrypted.bin and key.txt (in shellcode/) are embedded into the binary as byte slices.
-
-The resulting halo.exe is a standalone artifact; it does not require external payload or key files.
+Be sure to place loader_encrypted.bin and key.txt (in shellcode/) as they are embedded into the binary as byte slices.
 
 Payload Encryption Utility (enc.go)
 The enc.go utility transforms a raw payload into the format consumed by HALO.
