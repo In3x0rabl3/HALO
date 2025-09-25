@@ -40,10 +40,9 @@ HALO consists of four major subsystems:
 HALO is intended for Windows (x86-64). Cross-compilation from Linux requires MinGW:
 
 ```bash
-CGO_ENABLED=1 \
-CC=x86_64-w64-mingw32-gcc \
-GOOS=windows GOARCH=amd64 \
-go build -o halo.exe .
+go mod init halo
+go mod tidy
+CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc GOOS=windows GOARCH=amd64 go build .
 ```
 During build:
 
