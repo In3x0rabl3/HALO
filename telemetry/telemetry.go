@@ -194,7 +194,7 @@ func GetSelfAndParentNames() (string, string) {
 }
 
 // ==============================
-// Helpers (moved from ai.go)
+// Helpers 
 // ==============================
 
 func getProcesses() []string {
