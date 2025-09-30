@@ -84,8 +84,8 @@ go build -o encryptor enc.go
 ### Customization
 
 #### Model Selection & Prompt
-- Modify the model string in `ai/ai.go` (default: `gpt-4.1-mini`).
-- Modify the Prompt in `ai/ai.go`
+- Modify the model string in `model/common.go` (default: `gpt-4.1-mini`).
+- Modify the Prompt in `model/common.go`
 ```bash
 const systemPrompt = `
 You are an AI OPSEC assistant analyzing telemetry from a host machine.
