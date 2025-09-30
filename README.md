@@ -29,7 +29,9 @@ HALO consists of four major subsystems:
 
 ## Requirements
 
-- Go 1.24 or newer  
+- Go 1.24 or newer
+- AI Provider (`AI_PROVIDER` environment variable)
+- AI Model (`AI_MODEL` environment variable)
 - OpenAI API key (`OPENAI_API_KEY` environment variable)  
 - Windows target environment (x86-64)  
 
