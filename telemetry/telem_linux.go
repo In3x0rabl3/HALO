@@ -27,6 +27,5 @@ func BuildBaseline(selfProc, parentProc string) Telemetry {
 }
 
 func Collect(baseline Telemetry, selfProc, parentProc string) Telemetry {
-	// you can choose to merge with baseline or just rebuild fresh
 	return BuildBaseline(selfProc, parentProc)
 }
