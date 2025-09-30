@@ -21,7 +21,7 @@ HALO consists of four major subsystems:
    Payloads are pre-encrypted using RC4. Both the encrypted payload (`loader_encrypted.bin`) and key (`key.txt`) are embedded directly into the Go binary at compile time via `//go:embed`. No external files are required at runtime.
 
 4. **Shellcode Execution**  
-   If AI conditions are met, the shellcode is decrypted, allocated in executable memory via `VirtualAlloc`, written in place, and executed in a new thread with `CreateThread`. The host blocks on execution using `WaitForSingleObject`.
+   If AI conditions are met, the shellcode is decrypted, allocated in executable memory via `VirtualAlloc`, written in place, and executed in a new thread with `CreateThread`. The host blocks on execution using `WaitForSingleObject`. The current configuration is manily for Windows targets, although it would be simple to add other execution methods for Windows (e.g., Process Injection, Fiber, Hollow etc) and execution methods for Linux, OSX.
 
 ## DEMO
 
