@@ -9,7 +9,7 @@ HALO is a Windows-focused research framework that demonstrates conditional execu
 HALO consists of four major subsystems:
 
 1. **Telemetry**  
-   Collects runtime host data such as process information, parent process, system uptime, idle metrics, and device states. Establishes a baseline snapshot and compares subsequent samples to detect deviations or suspicious conditions.
+   Collects runtime host data such as process information, parent process, system uptime, idle metrics, and device states. Establishes a baseline snapshot and compares subsequent samples to detect deviations or suspicious conditions. You can also extend on this within the Telemetry directory.
 
 2. **AI Decision Engine**  
    Sends structured telemetry data to an OpenAI GPT model with a system prompt describing decision rules. The AI responds with JSON containing:
