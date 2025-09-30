@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+<<<<<<< HEAD
 var (
 	DefaultAIProvider = "chatgpt"
 	DefaultAPIKey     = ""
@@ -13,6 +14,8 @@ var (
 	DefaultAIModel    = "chatgpt"
 )
 
+=======
+>>>>>>> b190e59cb276021db88116db300eaf6555ffbf9a
 // ==============================
 // Shared AI Types & Helpers
 // ==============================

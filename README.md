@@ -9,7 +9,7 @@ HALO is a Windows-focused research framework that demonstrates conditional execu
 HALO consists of four major subsystems:
 
 1. **Telemetry**  
-   Collects runtime host data such as process information, parent process, system uptime, idle metrics, and device states. Establishes a baseline snapshot and compares subsequent samples to detect deviations or suspicious conditions.
+   Collects runtime host data such as process information, parent process, system uptime, idle metrics, and device states. Establishes a baseline snapshot and compares subsequent samples to detect deviations or suspicious conditions. You can also extend on this within the Telemetry directory.
 
 2. **AI Decision Engine**  
    Sends structured telemetry data to an OpenAI GPT model with a system prompt describing decision rules. The AI responds with JSON containing:
@@ -21,7 +21,7 @@ HALO consists of four major subsystems:
    Payloads are pre-encrypted using RC4. Both the encrypted payload (`loader_encrypted.bin`) and key (`key.txt`) are embedded directly into the Go binary at compile time via `//go:embed`. No external files are required at runtime.
 
 4. **Shellcode Execution**  
-   If AI conditions are met, the shellcode is decrypted, allocated in executable memory via `VirtualAlloc`, written in place, and executed in a new thread with `CreateThread`. The host blocks on execution using `WaitForSingleObject`.
+   If AI conditions are met, the shellcode is decrypted, allocated in executable memory via `VirtualAlloc`, written in place, and executed in a new thread with `CreateThread`. The host blocks on execution using `WaitForSingleObject`. The current configuration is manily for Windows targets, although it would be simple to add other execution methods for Windows (e.g., Process Injection, Fiber, Hollow etc) and execution methods for Linux, OSX.
 
 ## DEMO
 
@@ -29,7 +29,9 @@ HALO consists of four major subsystems:
 
 ## Requirements
 
-- Go 1.24 or newer  
+- Go 1.24 or newer
+- AI Provider (`AI_PROVIDER` environment variable)
+- AI Model (`AI_MODEL` environment variable)
 - OpenAI API key (`OPENAI_API_KEY` environment variable)  
 - Windows target environment (x86-64)  
 
@@ -82,8 +84,8 @@ go build -o encryptor enc.go
 ### Customization
 
 #### Model Selection & Prompt
-- Modify the model string in `ai/ai.go` (default: `gpt-4.1-mini`).
-- Modify the Prompt in `ai/ai.go`
+- Modify the model string in `model/common.go` (default: `gpt-4.1-mini`).
+- Modify the Prompt in `model/common.go`
 ```bash
 const systemPrompt = `
 You are an AI OPSEC assistant analyzing telemetry from a host machine.
