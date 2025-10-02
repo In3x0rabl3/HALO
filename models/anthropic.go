@@ -9,7 +9,6 @@ import (
 	"halo/telemetry"
 	"io"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -23,16 +22,18 @@ func (p *AnthropicProvider) Ask(t telemetry.Telemetry) (AIResponse, error) {
 
 // AskAnthropic mirrors AskOpenAI: systemPrompt + telemetry JSON, then POST to Anthropic-style endpoint.
 func AskAnthropic(t telemetry.Telemetry, apiKey string) (AIResponse, error) {
-	apiURL := os.Getenv("AI_URL")
+	apiURL := DefaultAPIURL
 	if apiURL == "" {
-		apiURL = "https://api.anthropic.com/v1/complete" // override in env
+		apiURL = "https://api.anthropic.com/v1/complete"
 	}
-	model := os.Getenv("AI_MODEL")
+
+	model := DefaultAIModel
 	if model == "" {
 		model = "claude-3-opus"
 	}
+
 	if apiKey == "" {
-		apiKey = os.Getenv("AI_API_KEY")
+		apiKey = DefaultAPIKey
 	}
 
 	// build prompt (system + telemetry)

@@ -23,8 +23,22 @@ func (p *ChatGPTProvider) Ask(t telemetry.Telemetry) (AIResponse, error) {
 
 // AskOpenAI queries OpenAI's ChatGPT API
 func AskOpenAI(t telemetry.Telemetry, apiKey string) (AIResponse, error) {
+	apiURL := DefaultAPIURL
+	if apiURL == "" {
+		apiURL = "https://api.openai.com/v1/chat/completions"
+	}
+
+	model := DefaultAIModel
+	if model == "" {
+		model = "gpt-4o"
+	}
+
+	if apiKey == "" {
+		apiKey = DefaultAPIKey
+	}
+
 	payload := map[string]interface{}{
-		"model": "gpt-4.1",
+		"model": model,
 		"messages": []map[string]string{
 			{"role": "system", "content": SystemPrompt},
 			{"role": "user", "content": TelemetryToJSON(t)},
@@ -33,7 +47,7 @@ func AskOpenAI(t telemetry.Telemetry, apiKey string) (AIResponse, error) {
 	}
 
 	data, _ := json.Marshal(payload)
-	req, _ := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(data))
+	req, _ := http.NewRequest("POST", apiURL, bytes.NewBuffer(data))
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 	req.Header.Set("Content-Type", "application/json")
 

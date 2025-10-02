@@ -16,7 +16,7 @@ func GetProvider(name string) (ModelProvider, error) {
 		name = DefaultAIProvider
 	}
 
-	// API key only needed for ChatGPT and Anthropic
+	// API key only needed for cloud providers
 	apiKey := os.Getenv("AI_API_KEY")
 	if apiKey == "" {
 		apiKey = DefaultAPIKey
@@ -28,19 +28,18 @@ func GetProvider(name string) (ModelProvider, error) {
 			return nil, fmt.Errorf("AI_API_KEY is required for chatgpt")
 		}
 		return &ChatGPTProvider{APIKey: apiKey}, nil
+
 	case "anthropic":
 		if apiKey == "" {
-			return nil, fmt.Errorf("AI_API_KEY not set for anthropic")
+			return nil, fmt.Errorf("AI_API_KEY is required for anthropic")
 		}
 		return &AnthropicProvider{APIKey: apiKey}, nil
-	case "mistral":
-		if apiKey == "" {
-			return nil, fmt.Errorf("AI_API_KEY not set for mistral")
-		}
-		return &MistralProvider{APIKey: apiKey}, nil
-	case "llama":
-		// Ollama/local llama usually doesn't need a key, so allow empty
-		return &LlamaProvider{APIKey: apiKey}, nil
+
+	case "ollama", "llama", "mistral":
+		// Local Ollama models (llama3, mistral, codellama, etc.)
+		// don’t require an API key, but we still pass one if set
+		return &OllamaProvider{APIKey: apiKey}, nil
+
 	default:
 		return nil, fmt.Errorf("unknown model provider: %s", name)
 	}

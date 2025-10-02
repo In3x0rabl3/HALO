@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	DefaultAIProvider = "chatgpt"
-	DefaultAPIKey     = ""
-	DefaultAPIURL     = "http://192.168.1.145:11434/api/generate"
-	DefaultAIModel    = "chatgpt"
+	DefaultAIProvider string
+	DefaultAPIKey     string
+	DefaultAPIURL     string
+	DefaultAIModel    string
 )
 
 // ==============================

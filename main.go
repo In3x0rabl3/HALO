@@ -28,13 +28,13 @@ func main() {
 		return
 	}
 
+	// Provider selection: allow runtime override via AI_PROVIDER, otherwise use build-time default
 	providerName := os.Getenv("AI_PROVIDER")
 	if providerName == "" {
-		providerName = "chatgpt"
+		providerName = models.DefaultAIProvider
 	}
 
 	provider, err := models.GetProvider(providerName)
-
 	if err != nil {
 		// Fatal: provider selection failed
 		logging.LogLine("[-] AI provider error: " + err.Error())
