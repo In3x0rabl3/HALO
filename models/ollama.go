@@ -9,30 +9,39 @@ import (
 	"halo/telemetry"
 	"io"
 	"net/http"
+	"strings"
 )
 
-// Unified provider for all Ollama-hosted models (llama3, mistral, codellama, etc.)
+// OllamaProvider supports all Ollama-hosted models (phi3:mini, llama3, mistral, neural-chat, phi, etc.)
 type OllamaProvider struct {
-	APIKey string
+	APIURL string
+	Model  string
 }
 
+// Ask runs the telemetry through the selected Ollama model.
 func (p *OllamaProvider) Ask(t telemetry.Telemetry) (AIResponse, error) {
-	return AskOllama(t, p.APIKey)
+	apiURL := p.APIURL
+	if apiURL == "" {
+		apiURL = "http://localhost:11434/api/generate" // default Ollama endpoint
+	}
+
+	model := p.Model
+	if model == "" {
+		model = "llama3" // fallback default
+	}
+
+	return AskOllama(t, apiURL, model)
 }
 
-func AskOllama(t telemetry.Telemetry, apiKey string) (AIResponse, error) {
-	apiURL := DefaultAPIURL
-	if apiURL == "" {
-		apiURL = "http://localhost:11434/api/generate" // fallback Ollama default
-	}
-
-	model := DefaultAIModel
+// AskOllama handles the HTTP request/response flow for any Ollama model.
+func AskOllama(t telemetry.Telemetry, apiURL, model string) (AIResponse, error) {
+	// Normalize model input to handle shorthand like "phi3"
 	if model == "" {
-		model = "llama3"
+		model = ""
 	}
-
-	if apiKey == "" {
-		apiKey = DefaultAPIKey
+	if !strings.Contains(model, ":") && model != "llama3" && model != "mistral" && model != "neural-chat" {
+		// append :latest if not specified for models that default to latest
+		model = model + ":latest"
 	}
 
 	// Build strict JSON-only prompt
@@ -56,12 +65,9 @@ Respond ONLY with a valid JSON object in exactly this schema:
 
 	data, _ := json.Marshal(payload)
 	req, _ := http.NewRequest("POST", apiURL, bytes.NewBuffer(data))
-	if apiKey != "" {
-		req.Header.Set("Authorization", "Bearer "+apiKey)
-	}
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{Timeout: 0} // 0 = no timeout (streaming)
+	client := &http.Client{Timeout: 0} // no timeout, supports big models
 	resp, err := client.Do(req)
 	if err != nil {
 		return AIResponse{}, err
@@ -69,7 +75,7 @@ Respond ONLY with a valid JSON object in exactly this schema:
 	defer resp.Body.Close()
 
 	body, _ := io.ReadAll(resp.Body)
-	logging.LogLine("[Ollama Raw Response] " + string(body))
+	logging.LogLine(fmt.Sprintf("[Ollama Raw Response][%s] %s", model, string(body)))
 
 	var out struct {
 		Response string `json:"response"`
@@ -89,7 +95,7 @@ Respond ONLY with a valid JSON object in exactly this schema:
 		return AIResponse{}, err
 	}
 
-	logging.LogLine(fmt.Sprintf("[Ollama Decision] Allow: %v Conf: %.2f Reason: %s Thoughts: %s",
-		parsed.Allow, parsed.Conf, parsed.Reason, parsed.Thoughts))
+	logging.LogLine(fmt.Sprintf("[Ollama Decision][%s] Allow: %v Conf: %.2f Reason: %s Thoughts: %s",
+		model, parsed.Allow, parsed.Conf, parsed.Reason, parsed.Thoughts))
 	return parsed, nil
 }

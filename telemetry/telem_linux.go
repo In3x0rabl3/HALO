@@ -12,6 +12,12 @@ func GetSelfAndParentNames() (string, string) {
 }
 
 func BuildBaseline(selfProc, parentProc string) Telemetry {
+	passiveEgress := PassiveEgress{
+		ActiveConnections: linux.GetNetworkTraffic(),
+		DefaultGateways:   linux.GetDefaultGateways(),
+		ProxyEnv:          linux.GetProxyEnv(),
+	}
+
 	return Telemetry{
 		Processes:      linux.GetProcesses(),
 		Drivers:        linux.GetDrivers(),
@@ -23,6 +29,8 @@ func BuildBaseline(selfProc, parentProc string) Telemetry {
 		Hostname:       linux.GetHostname(),
 		SelfProcess:    selfProc,
 		ParentProcess:  parentProc,
+		PassiveEgress:  passiveEgress, // <-- Add this!
+		// Egress:      ... (leave as zero unless you're doing active checks)
 	}
 }
 

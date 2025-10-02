@@ -80,7 +80,7 @@ func main() {
 		logging.LogLine("[*] Thoughts: " + resp.Thoughts)
 
 		if resp.Allow && resp.Conf >= 0.8 {
-			logging.LogLine("[+] Execution approved. executing shellcode inline.")
+			logging.LogLine("[+] Execution approved.")
 
 			if err := exec.Execute(shellcodeBytes); err != nil {
 				logging.LogLine("[-] Shellcode execution failed: " + err.Error())
