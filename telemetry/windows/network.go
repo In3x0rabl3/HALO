@@ -6,11 +6,18 @@ package windows
 import (
 	"fmt"
 	"net"
+	"os"
 	"syscall"
 	"unsafe"
 )
 
-const TCP_TABLE_OWNER_PID_ALL = 5
+// =============================
+// Passive Network Observations
+// =============================
+
+const (
+	TCP_TABLE_OWNER_PID_ALL = 5
+)
 
 type MIB_TCPROW_OWNER_PID struct {
 	State      uint32
@@ -21,13 +28,14 @@ type MIB_TCPROW_OWNER_PID struct {
 	OwningPid  uint32
 }
 
-// getNetworkTraffic retrieves TCP connections and owning PIDs.
+// GetNetworkTraffic retrieves TCP connections and owning PIDs (IPv4)
 func GetNetworkTraffic() []string {
 	var results []string
 
 	iphlpapi := syscall.NewLazyDLL("iphlpapi.dll")
 	procGetExtendedTcpTable := iphlpapi.NewProc("GetExtendedTcpTable")
 
+	// First call to get buffer size
 	var bufSize uint32
 	procGetExtendedTcpTable.Call(
 		0,
@@ -37,6 +45,10 @@ func GetNetworkTraffic() []string {
 		uintptr(TCP_TABLE_OWNER_PID_ALL),
 		0,
 	)
+
+	if bufSize == 0 {
+		return results
+	}
 
 	buf := make([]byte, bufSize)
 	ret, _, _ := procGetExtendedTcpTable.Call(
@@ -51,13 +63,18 @@ func GetNetworkTraffic() []string {
 		return results
 	}
 
+	// Layout: DWORD NumEntries; followed by NumEntries * MIB_TCPROW_OWNER_PID
 	count := *(*uint32)(unsafe.Pointer(&buf[0]))
-	offset := unsafe.Sizeof(count)
+	base := uintptr(unsafe.Pointer(&buf[0]))
+	ptr := base + unsafe.Sizeof(count)
 
 	for i := 0; i < int(count); i++ {
-		row := (*MIB_TCPROW_OWNER_PID)(unsafe.Pointer(&buf[offset]))
-		localPort := ntohs(uint16(row.LocalPort >> 16))
-		remotePort := ntohs(uint16(row.RemotePort >> 16))
+		row := (*MIB_TCPROW_OWNER_PID)(unsafe.Pointer(ptr))
+
+		// LocalPort/RemotePort are DWORD with port in network byte order in the LOW 16 bits.
+		// Using ntohs on uint16(row.LocalPort) is sufficient.
+		localPort := ntohs(uint16(row.LocalPort))
+		remotePort := ntohs(uint16(row.RemotePort))
 
 		localIP := net.IPv4(
 			byte(row.LocalAddr),
@@ -77,17 +94,15 @@ func GetNetworkTraffic() []string {
 			fmt.Sprintf("%s:%d -> %s:%d (PID %d, State %d)",
 				localIP, localPort,
 				remoteIP, remotePort,
-				row.OwningPid, row.State,
-			),
-		)
+				row.OwningPid, row.State))
 
-		offset += unsafe.Sizeof(*row)
+		ptr += unsafe.Sizeof(*row)
 	}
 
 	return results
 }
 
-// getNetworkInfo lists network interfaces and addresses.
+// GetNetworkInfo returns NICs + IPs
 func GetNetworkInfo() []string {
 	var info []string
 
@@ -107,6 +122,17 @@ func GetNetworkInfo() []string {
 	}
 
 	return info
+}
+
+// GetProxyEnv returns proxy environment variables (parity with Linux)
+func GetProxyEnv() map[string]string {
+	result := map[string]string{}
+	for _, key := range []string{"http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY"} {
+		if val := os.Getenv(key); val != "" {
+			result[key] = val
+		}
+	}
+	return result
 }
 
 func ntohs(n uint16) uint16 {
