@@ -1,3 +1,6 @@
+*Under Construction....the dev branch is a lot more fun but things break sometimes.
+
+
 # HALO — Hybrid Autonomous Logic Operator
 
 HALO is a Windows-focused research framework that demonstrates conditional execution of encrypted payloads based on AI-assisted telemetry evaluation. The system integrates host environment analysis with OpenAI GPT models to determine whether an embedded payload should be executed. Payloads are encrypted, embedded at build time, and executed inline through Windows API calls.
